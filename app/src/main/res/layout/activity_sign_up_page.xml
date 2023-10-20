@@ -26,6 +26,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="16dp"
         android:backgroundTint="@color/yellow"
+        android:onClick="clickSignUp"
         android:text="Sign Up"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,7 +39,7 @@
         style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
         android:layout_width="350dp"
         android:layout_height="54dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:background="@color/white"
         android:drawableEnd="@drawable/eye_icon"
         android:drawablePadding="10dp"
@@ -67,7 +68,7 @@
         style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
         android:layout_width="350dp"
         android:layout_height="54dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:background="@color/white"
         android:drawableEnd="@drawable/eye_icon"
         android:drawablePadding="10dp"
@@ -109,7 +110,7 @@
         style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
         android:layout_width="350dp"
         android:layout_height="54dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:background="@color/white"
         android:hint="Email"
         android:textColor="@color/black"
@@ -123,7 +124,7 @@
         style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
         android:layout_width="350dp"
         android:layout_height="54dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:background="@color/white"
         android:hint="Username"
         android:textColor="@color/black"
@@ -161,7 +162,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:fontFamily="@font/saira"
-        android:minHeight="32dp"
+        android:minHeight="48dp"
         android:onClick="backToSignIn"
         android:text="Already have an account? Sign In"
         android:textColor="@color/white"
@@ -169,4 +170,60 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/nameErrorTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:shadowRadius="10"
+        android:text="TextView"
+        android:textColor="#FF0000"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nameInput" />
+
+    <TextView
+        android:id="@+id/emailErrorTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:text="TextView"
+        android:textColor="#FF0000"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/emailInput" />
+
+    <TextView
+        android:id="@+id/passwordErrorTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:text="TextView"
+        android:textColor="#FF0000"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/passwordInput" />
+
+    <TextView
+        android:id="@+id/confirmErrorTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:text="TextView"
+        android:textColor="#FF0000"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/confirmPassInput" />
+
+    <TextView
+        android:id="@+id/usernameErrorTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:text="TextView"
+        android:textColor="#FF0000"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/usernameInput" />
 </androidx.constraintlayout.widget.ConstraintLayout>
