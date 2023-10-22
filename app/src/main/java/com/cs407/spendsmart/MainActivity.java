@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     // TODO: Navigate to ForgotPassword Page
     public void toForgotPassword(View view) {
-
+        Intent intent = new Intent(this, ForgotPwdPage.class);
+        startActivity(intent);
     }
 }
