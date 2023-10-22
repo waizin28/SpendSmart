@@ -89,13 +89,12 @@
         app:layout_constraintTop_toBottomOf="@+id/forgot_emailInput" />
 
     <TextView
-        android:id="@+id/forgotPassword"
+        android:id="@+id/redirect_signIn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="44dp"
         android:fontFamily="@font/saira"
         android:minHeight="48dp"
-        android:onClick="toForgotPassword"
         android:text="Return to Sign in Page"
         android:textColor="@color/white"
         android:textSize="18sp"
