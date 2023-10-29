@@ -1,49 +1,102 @@
 package com.cs407.spendsmart;
 
+import static android.Manifest.permission.READ_MEDIA_IMAGES;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import io.getstream.avatarview.AvatarView;
+
 public class SignUpPage extends AppCompatActivity {
 
     private boolean passwordVis = false;
     private boolean confirmPassVis = false;
+    FirebaseFirestore database = FirebaseFirestore.getInstance();
+    ActivityResultLauncher<Intent> imageLauncher;
+    Map<String,Object> user = new HashMap<>();
+    EditText email;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up_page);
+
+        AvatarView avatarView = findViewById(R.id.avatarView);
+        avatarView.setAvatarInitialsBackgroundColor(ContextCompat.getColor(this, R.color.dark_green));
+        avatarView.setAvatarInitials(" ");
+
+        email = findViewById(R.id.emailInput);
+
+        // Initializes activity for choosing profile picture.
+        imageLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    // On Choosing Picture:
+                    if(result.getResultCode() == RESULT_OK) {
+                        assert result.getData() != null;
+                        Uri imageUri = result.getData().getData();
+                        avatarView.setAvatarInitials(null);
+                        avatarView.setImageURI(imageUri);
+
+                        // TODO: Store profile pic in cloud storage and reference from database?
+                    }
+                }
+        );
     }
 
     public void clickSignUp(View view) {
         boolean formFilled = true;
         EditText name = findViewById(R.id.nameInput);
         EditText username = findViewById(R.id.usernameInput);
-        EditText email = findViewById(R.id.emailInput);
         EditText password = findViewById(R.id.passwordInput);
         EditText confirm = findViewById(R.id.confirmPassInput);
 
         if(name.getText().toString().equals("") || !name.getText().toString().contains(" ")){
             formFilled = false;
-            TextView errorTxt= findViewById(R.id.nameErrorTxt);
-            errorTxt.setText("Both First and Last Name Required");
-            errorTxt.setVisibility(View.VISIBLE);
-        } else{
-            findViewById(R.id.nameErrorTxt).setVisibility(View.INVISIBLE);
+            findViewById(R.id.nameErrorTxt).setVisibility(View.VISIBLE);
         }
+        else { findViewById(R.id.nameErrorTxt).setVisibility(View.INVISIBLE); }
         if(username.getText().toString().equals("")){
             formFilled = false;
-            TextView errorTxt= findViewById(R.id.usernameErrorTxt);
-            errorTxt.setText("Username Required");
-            errorTxt.setVisibility(View.VISIBLE);
-        } else {
-            findViewById(R.id.usernameErrorTxt).setVisibility(View.INVISIBLE);
+            findViewById(R.id.usernameErrorTxt).setVisibility(View.VISIBLE);
         }
+        else { findViewById(R.id.usernameErrorTxt).setVisibility(View.INVISIBLE); }
         if(email.getText().toString().equals("")){
             formFilled = false;
             TextView errorTxt= findViewById(R.id.emailErrorTxt);
@@ -55,33 +108,54 @@ public class SignUpPage extends AppCompatActivity {
             TextView errorTxt= findViewById(R.id.emailErrorTxt);
             errorTxt.setText("Invalid Email");
             errorTxt.setVisibility(View.VISIBLE);
-        } else {
-            findViewById(R.id.emailErrorTxt).setVisibility(View.INVISIBLE);
         }
+        else { findViewById(R.id.emailErrorTxt).setVisibility(View.INVISIBLE); }
         if(password.getText().toString().equals("")){
             formFilled = false;
-            TextView errorTxt= findViewById(R.id.passwordErrorTxt);
-            errorTxt.setText("Password Required");
-            errorTxt.setVisibility(View.VISIBLE);
-        } else {
-            findViewById(R.id.passwordErrorTxt).setVisibility(View.INVISIBLE);
+            findViewById(R.id.passwordErrorTxt).setVisibility(View.VISIBLE);
         }
+        else { findViewById(R.id.passwordErrorTxt).setVisibility(View.INVISIBLE); }
         if(!password.getText().toString().equals(confirm.getText().toString())){
             formFilled = false;
-            TextView errorTxt= findViewById(R.id.confirmErrorTxt);
-            errorTxt.setText("Passwords do not match");
-            errorTxt.setVisibility(View.VISIBLE);
-        } else {
-            findViewById(R.id.confirmErrorTxt).setVisibility(View.INVISIBLE);
+            findViewById(R.id.confirmErrorTxt).setVisibility(View.VISIBLE);
         }
+        else { findViewById(R.id.confirmErrorTxt).setVisibility(View.INVISIBLE); }
 
+        // Store user info in database:
         if(formFilled){
-            enterUser();
+            user.put("name", name.getText().toString());
+            user.put("username", username.getText().toString());
+            user.put("transactions", new HashMap<String,Object>());
+            database.collection("users").document(email.getText().toString()).set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    Toast.makeText(getApplicationContext(), "Sign Up Success", Toast.LENGTH_SHORT).show();
+                }
+            });
+
         }
     }
 
-    public void enterUser() {
-        Toast.makeText(this, "Sign Up Success", Toast.LENGTH_SHORT).show();
+    public void clickProfilePic(View view) {
+        findViewById(R.id.emailErrorTxt).setVisibility(View.INVISIBLE);
+        if(Build.VERSION.SDK_INT > 23) {
+            if(ContextCompat.checkSelfPermission(this, READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{READ_MEDIA_IMAGES}, 1);
+            }
+            else { selectPic(); }
+        }
+        else { selectPic(); }
+    }
+    public void selectPic() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        imageLauncher.launch(intent);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            selectPic();
+        }
     }
 
     // Password Visibility2:
