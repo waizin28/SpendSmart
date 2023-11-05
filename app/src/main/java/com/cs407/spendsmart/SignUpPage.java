@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -26,20 +25,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,20 +83,12 @@ public class SignUpPage extends AppCompatActivity {
                         byte[] data = baos.toByteArray();
                         // Start upload task
                         UploadTask uploadTask = imageRef.putBytes(data);
-                        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
-                                ProgressBar bar = findViewById(R.id.picProgress);
-                                bar.setVisibility(View.VISIBLE);
-                                bar.setProgress((int)(((float)snapshot.getBytesTransferred()/data.length)*100));
-                            }
+                        uploadTask.addOnProgressListener(snapshot -> {
+                            ProgressBar bar = findViewById(R.id.picProgress);
+                            bar.setVisibility(View.VISIBLE);
+                            bar.setProgress((int)(((float)snapshot.getBytesTransferred()/data.length)*100));
                         });
-                        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                findViewById(R.id.picProgress).setVisibility(View.INVISIBLE);
-                            }
-                        });
+                        uploadTask.addOnSuccessListener(taskSnapshot -> findViewById(R.id.picProgress).setVisibility(View.INVISIBLE));
                     }
                 }
         );
@@ -161,12 +146,42 @@ public class SignUpPage extends AppCompatActivity {
             else {
                 user.put("profile_pic",null);
             }
-            database.collection("users").document(email.getText().toString()).set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void unused) {
-                    Toast.makeText(getApplicationContext(), "Sign Up Success", Toast.LENGTH_SHORT).show();
-                }
-            });
+            database.collection("users").document(email.getText().toString()).set(user).addOnSuccessListener(unused -> Toast.makeText(getApplicationContext(), "Sign Up Success", Toast.LENGTH_SHORT).show());
+
+            // Firebase Authentication - create new user with email and password.
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            mAuth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
+                    .addOnCompleteListener(this, task -> {
+                        if(task.isSuccessful()) {
+                            new UserProfileChangeRequest.Builder().setDisplayName(name.getText().toString()).build();
+                            Intent intent = new Intent(SignUpPage.this, MainActivity.class);
+                            startActivity(intent);
+                        }
+                        else {
+                            Toast.makeText(SignUpPage.this, "Authentication failed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+
+
+
+                    /*.addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d(TAG, "createUserWithEmail:success");
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                //updateUI(user);
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                Toast.makeText(EmailPasswordActivity.this, "Authentication failed.",
+                                        Toast.LENGTH_SHORT).show();
+                                //updateUI(null);
+                            }
+                        }
+                    });*/
 
         }
     }
