@@ -22,6 +22,7 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +32,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -51,6 +53,7 @@ public class SignUpPage extends AppCompatActivity {
     ActivityResultLauncher<Intent> imageLauncher;
     Map<String,Object> user = new HashMap<>();
     EditText email;
+    boolean picSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,7 @@ public class SignUpPage extends AppCompatActivity {
         avatarView.setAvatarInitials(" ");
 
         email = findViewById(R.id.emailInput);
+        picSelected = false;
 
         // Initializes activity for choosing profile picture.
         imageLauncher = registerForActivityResult(
@@ -69,12 +73,37 @@ public class SignUpPage extends AppCompatActivity {
                 result -> {
                     // On Choosing Picture:
                     if(result.getResultCode() == RESULT_OK) {
+                        picSelected = true;
                         assert result.getData() != null;
                         Uri imageUri = result.getData().getData();
                         avatarView.setAvatarInitials(null);
                         avatarView.setImageURI(imageUri);
 
                         // TODO: Store profile pic in cloud storage and reference from database?
+                        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+                        StorageReference imageRef = storageRef.child("profile_pics/"+email.getText().toString());
+                        avatarView.setDrawingCacheEnabled(true);
+                        avatarView.buildDrawingCache();
+                        Bitmap bitmap = ((BitmapDrawable) avatarView.getDrawable()).getBitmap();
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        byte[] data = baos.toByteArray();
+                        // Start upload task
+                        UploadTask uploadTask = imageRef.putBytes(data);
+                        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                                ProgressBar bar = findViewById(R.id.picProgress);
+                                bar.setVisibility(View.VISIBLE);
+                                bar.setProgress((int)(((float)snapshot.getBytesTransferred()/data.length)*100));
+                            }
+                        });
+                        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                findViewById(R.id.picProgress).setVisibility(View.INVISIBLE);
+                            }
+                        });
                     }
                 }
         );
@@ -126,6 +155,12 @@ public class SignUpPage extends AppCompatActivity {
             user.put("name", name.getText().toString());
             user.put("username", username.getText().toString());
             user.put("transactions", new HashMap<String,Object>());
+            if(picSelected){
+                user.put("profile_pic","profile_pics/"+email.getText().toString());
+            }
+            else {
+                user.put("profile_pic",null);
+            }
             database.collection("users").document(email.getText().toString()).set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void unused) {
@@ -137,14 +172,22 @@ public class SignUpPage extends AppCompatActivity {
     }
 
     public void clickProfilePic(View view) {
-        findViewById(R.id.emailErrorTxt).setVisibility(View.INVISIBLE);
-        if(Build.VERSION.SDK_INT > 23) {
-            if(ContextCompat.checkSelfPermission(this, READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{READ_MEDIA_IMAGES}, 1);
+        if(email.getText().toString().equals("")){
+            TextView errorTxt= findViewById(R.id.emailErrorTxt);
+            errorTxt.setText("Email Required");
+            errorTxt.setVisibility(View.VISIBLE);
+        }
+        else {
+            findViewById(R.id.emailErrorTxt).setVisibility(View.INVISIBLE);
+            if(Build.VERSION.SDK_INT > 23) {
+                if(ContextCompat.checkSelfPermission(this, READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{READ_MEDIA_IMAGES}, 1);
+                }
+                else { selectPic(); }
             }
             else { selectPic(); }
         }
-        else { selectPic(); }
+
     }
     public void selectPic() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);

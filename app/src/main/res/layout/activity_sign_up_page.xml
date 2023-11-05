@@ -251,4 +251,18 @@
         app:avatarViewShape="rounded_rect"
         app:layout_constraintStart_toEndOf="@+id/selectPicBtn"
         app:layout_constraintTop_toTopOf="@+id/selectPicBtn" />
+
+    <ProgressBar
+        android:id="@+id/picProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/yellow"
+        app:layout_constraintStart_toEndOf="@+id/selectPicBtn"
+        app:layout_constraintTop_toBottomOf="@+id/avatarView" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
