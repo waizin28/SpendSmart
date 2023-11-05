@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -22,22 +21,18 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +46,7 @@ public class SignUpPage extends AppCompatActivity {
     ActivityResultLauncher<Intent> imageLauncher;
     Map<String,Object> user = new HashMap<>();
     EditText email;
+    boolean picSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +58,7 @@ public class SignUpPage extends AppCompatActivity {
         avatarView.setAvatarInitials(" ");
 
         email = findViewById(R.id.emailInput);
+        picSelected = false;
 
         // Initializes activity for choosing profile picture.
         imageLauncher = registerForActivityResult(
@@ -69,12 +66,29 @@ public class SignUpPage extends AppCompatActivity {
                 result -> {
                     // On Choosing Picture:
                     if(result.getResultCode() == RESULT_OK) {
+                        picSelected = true;
                         assert result.getData() != null;
                         Uri imageUri = result.getData().getData();
                         avatarView.setAvatarInitials(null);
                         avatarView.setImageURI(imageUri);
 
                         // TODO: Store profile pic in cloud storage and reference from database?
+                        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+                        StorageReference imageRef = storageRef.child("profile_pics/"+email.getText().toString());
+                        avatarView.setDrawingCacheEnabled(true);
+                        avatarView.buildDrawingCache();
+                        Bitmap bitmap = ((BitmapDrawable) avatarView.getDrawable()).getBitmap();
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        byte[] data = baos.toByteArray();
+                        // Start upload task
+                        UploadTask uploadTask = imageRef.putBytes(data);
+                        uploadTask.addOnProgressListener(snapshot -> {
+                            ProgressBar bar = findViewById(R.id.picProgress);
+                            bar.setVisibility(View.VISIBLE);
+                            bar.setProgress((int)(((float)snapshot.getBytesTransferred()/data.length)*100));
+                        });
+                        uploadTask.addOnSuccessListener(taskSnapshot -> findViewById(R.id.picProgress).setVisibility(View.INVISIBLE));
                     }
                 }
         );
@@ -126,25 +140,69 @@ public class SignUpPage extends AppCompatActivity {
             user.put("name", name.getText().toString());
             user.put("username", username.getText().toString());
             user.put("transactions", new HashMap<String,Object>());
-            database.collection("users").document(email.getText().toString()).set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void unused) {
-                    Toast.makeText(getApplicationContext(), "Sign Up Success", Toast.LENGTH_SHORT).show();
-                }
-            });
+            if(picSelected){
+                user.put("profile_pic","profile_pics/"+email.getText().toString());
+            }
+            else {
+                user.put("profile_pic",null);
+            }
+            database.collection("users").document(email.getText().toString()).set(user).addOnSuccessListener(unused -> Toast.makeText(getApplicationContext(), "Sign Up Success", Toast.LENGTH_SHORT).show());
+
+            // Firebase Authentication - create new user with email and password.
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            mAuth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
+                    .addOnCompleteListener(this, task -> {
+                        if(task.isSuccessful()) {
+                            new UserProfileChangeRequest.Builder().setDisplayName(name.getText().toString()).build();
+                            Intent intent = new Intent(SignUpPage.this, MainActivity.class);
+                            startActivity(intent);
+                        }
+                        else {
+                            Toast.makeText(SignUpPage.this, "Authentication failed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+
+
+
+                    /*.addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d(TAG, "createUserWithEmail:success");
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                //updateUI(user);
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                Toast.makeText(EmailPasswordActivity.this, "Authentication failed.",
+                                        Toast.LENGTH_SHORT).show();
+                                //updateUI(null);
+                            }
+                        }
+                    });*/
 
         }
     }
 
     public void clickProfilePic(View view) {
-        findViewById(R.id.emailErrorTxt).setVisibility(View.INVISIBLE);
-        if(Build.VERSION.SDK_INT > 23) {
-            if(ContextCompat.checkSelfPermission(this, READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{READ_MEDIA_IMAGES}, 1);
+        if(email.getText().toString().equals("")){
+            TextView errorTxt= findViewById(R.id.emailErrorTxt);
+            errorTxt.setText("Email Required");
+            errorTxt.setVisibility(View.VISIBLE);
+        }
+        else {
+            findViewById(R.id.emailErrorTxt).setVisibility(View.INVISIBLE);
+            if(Build.VERSION.SDK_INT > 23) {
+                if(ContextCompat.checkSelfPermission(this, READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{READ_MEDIA_IMAGES}, 1);
+                }
+                else { selectPic(); }
             }
             else { selectPic(); }
         }
-        else { selectPic(); }
+
     }
     public void selectPic() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);

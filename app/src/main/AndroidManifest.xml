@@ -16,6 +16,9 @@
         android:theme="@style/Theme.SpendSmart"
         tools:targetApi="31">
         <activity
+            android:name=".TestHomePage"
+            android:exported="false" />
+        <activity
             android:name=".ForgotPwdPage"
             android:exported="false" />
         <activity
