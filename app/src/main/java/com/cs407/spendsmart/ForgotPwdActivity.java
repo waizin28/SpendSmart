@@ -10,9 +10,9 @@ import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputLayout;
 
-public class ForgotPwdPage extends AppCompatActivity {
+public class ForgotPwdActivity extends AppCompatActivity {
 
-    private TextInputLayout textInputUsername, textInputEmail;
+    private TextInputLayout textInputEmail;
     private Button recover_btn;
 
     private TextView redirectSignIn;
@@ -20,9 +20,8 @@ public class ForgotPwdPage extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_forgot_pwd_page);
+        setContentView(R.layout.activity_forgot_pwd);
 
-        textInputUsername = findViewById(R.id.forgot_userInput);
         textInputEmail = findViewById(R.id.forgot_emailInput);
         redirectSignIn = findViewById(R.id.redirect_signIn);
 
@@ -37,7 +36,7 @@ public class ForgotPwdPage extends AppCompatActivity {
         redirectSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), MainActivity.class);
+                Intent intent = new Intent(view.getContext(), LogInActivity.class);
                 startActivity(intent);
             }
         });
@@ -57,26 +56,10 @@ public class ForgotPwdPage extends AppCompatActivity {
         return true;
     }
 
-    private boolean validateUserName(){
-        String username  = textInputUsername.getEditText().getText().toString().trim();
-        if(username.isEmpty()){
-            textInputUsername.setError("Field can't be empty");
-            return false;
-        }else{
-            textInputUsername.setErrorEnabled(false);
-        }
-        return true;
-    }
     public void confirmInput(View v){
-
-        if(!!validateUserName()){
-            return;
-        }
 
         if(!validateEmail()){
             return;
         }
-
-
     }
 }

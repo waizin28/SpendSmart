@@ -19,6 +19,6 @@ public class TestHomePage extends AppCompatActivity {
     public void onSignOut(View view) {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mAuth.signOut();
-        startActivity(new Intent(this, MainActivity.class));
+        startActivity(new Intent(this, LogInActivity.class));
     }
 }
