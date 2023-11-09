@@ -1,19 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
     tools:context=".ExpenseFragment">
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
+        android:id="@+id/textViewAddExpenseDetails"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:text="This is Expense Fragment"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_gravity="center"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="45dp"
+        android:fontFamily="@font/saira"
+        android:gravity="center_horizontal"
+        android:text="There are 3 easy ways to upload your expenses..."
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <Button
+        android:id="@+id/addManualButton"
+        android:layout_width="300dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:layout_marginVertical="30dp"
+        android:drawableLeft="@drawable/input_icon"
+        android:text="Enter Expense Manually" />
+
+    <Button
+        android:id="@+id/addScanReceiptButton"
+        android:layout_width="300dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:layout_marginVertical="30dp"
+        android:drawableLeft="@drawable/scan_icon"
+        android:text="Scan Receipt" />
+
+    <Button
+        android:id="@+id/addBankStatementButton"
+        android:layout_width="300dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:layout_marginVertical="30dp"
+        android:drawableLeft="@drawable/upload_icon"
+        android:text="Upload Bank Statement" />
+
+</LinearLayout>
