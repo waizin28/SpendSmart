@@ -154,7 +154,7 @@ public class SignUpPage extends AppCompatActivity {
                     .addOnCompleteListener(this, task -> {
                         if(task.isSuccessful()) {
                             new UserProfileChangeRequest.Builder().setDisplayName(name.getText().toString()).build();
-                            Intent intent = new Intent(SignUpPage.this, MainActivity.class);
+                            Intent intent = new Intent(SignUpPage.this, LogInActivity.class);
                             startActivity(intent);
                         }
                         else {
@@ -247,7 +247,7 @@ public class SignUpPage extends AppCompatActivity {
     }
 
     public void backToSignIn(View view) {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, LogInActivity.class);
         startActivity(intent);
     }
 }
