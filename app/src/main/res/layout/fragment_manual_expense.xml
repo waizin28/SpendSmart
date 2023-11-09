@@ -8,6 +8,10 @@
     android:padding="16dp"
     tools:context=".ManualExpenseFragment">
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="40dp"></Space>
+
     <ImageView
         android:id="@+id/manualExpenseBackButton"
         android:layout_width="wrap_content"
@@ -17,6 +21,8 @@
         android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
         android:layout_marginBottom="15dp"
+        android:clickable="true"
+        android:contextClickable="true"
         app:srcCompat="@drawable/back_arrow_gray" />
 
     <TextView
@@ -93,7 +99,7 @@
         android:layout_marginTop="5dp"
         android:background="@drawable/rounded_background"
         android:ems="10"
-        android:hint="MM/DD/YYYY"
+        android:hint="DD/MM/YYYY"
         android:inputType="date"
         android:paddingLeft="10dp"
         android:textColor="#FFFFFF"
