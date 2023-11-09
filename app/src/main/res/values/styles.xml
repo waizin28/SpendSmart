@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="RoundedCorner" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="YellowButton" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/yellow</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:fontFamily">@font/saira</item>
+        <item name="shapeAppearance">@style/RoundedCorner</item>
+    </style>
+
+</resources>

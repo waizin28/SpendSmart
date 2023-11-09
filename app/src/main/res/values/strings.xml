@@ -2,4 +2,18 @@
     <string name="app_name">SpendSmart</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string-array name="expense_categories">
+        <item>Housing</item>
+        <item>Transportation</item>
+        <item>Food</item>
+        <item>Healthcare</item>
+        <item>Personal/Family Care</item>
+        <item>Savings/Investments</item>
+        <item>Entertainment</item>
+        <item>Education</item>
+        <item>Taxes</item>
+        <item>Insurance</item>
+        <item>Gifts and Donations</item>
+        <item>Miscellaneous</item>
+    </string-array>
 </resources>
