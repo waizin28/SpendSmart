@@ -3,22 +3,15 @@ package com.cs407.spendsmart;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.Firebase;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,15 +20,14 @@ import com.google.firebase.storage.StorageReference;
 
 import java.text.DateFormat;
 import java.util.List;
-import java.util.Objects;
 
 import io.getstream.avatarview.AvatarView;
 
 public class MessageListAdapter extends RecyclerView.Adapter {
     private static final int VIEW_TYPE_MESSAGE_SENT = 1;
 	private static final int VIEW_TYPE_MESSAGE_RECEIVED = 2;
-    private Context mContext;
-    private List<Message> mMessageList;
+    private final Context mContext;
+    private final List<Message> mMessageList;
     private String prevDate = null;
     private String prevName = null;
 
@@ -121,34 +113,27 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                 prevName = message.getName();
                 profileImage.setVisibility(View.VISIBLE);
 
-                FirebaseAuth mAuth = FirebaseAuth.getInstance();
                 DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(message.getEmail());
-                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                // User has uploaded a profile pic
-                                if(document.get("profile_pic") != null){
-                                    StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-                                    StorageReference pathReference = storageRef.child("profile_pics/"+message.getEmail());
-                                    final long LIMIT = 2048 * 2048;
-                                    pathReference.getBytes(LIMIT).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                                        @Override
-                                        public void onSuccess(byte[] bytes) {
-                                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                            profileImage.setAvatarInitials(null);
-                                            profileImage.setImageBitmap(bitmap);
-                                            profileImage.setAvatarInitialsBackgroundColor(ContextCompat.getColor(mContext,R.color.white));
-                                        }
-                                    });
-                                }
-                                // User doesn't have profile_pic: Assign default initial pic.
-                                else {
-                                    profileImage.setAvatarInitials(message.getName().substring(0,1).toUpperCase());
-                                    profileImage.setAvatarInitialsBackgroundColor(ContextCompat.getColor(mContext, R.color.dark_green));
-                                }
+                docRef.get().addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            // User has uploaded a profile pic
+                            if(document.get("profile_pic") != null){
+                                StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+                                StorageReference pathReference = storageRef.child("profile_pics/"+message.getEmail());
+                                final long LIMIT = 2048 * 2048;
+                                pathReference.getBytes(LIMIT).addOnSuccessListener(bytes -> {
+                                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                    profileImage.setAvatarInitials(null);
+                                    profileImage.setImageBitmap(bitmap);
+                                    profileImage.setAvatarInitialsBackgroundColor(ContextCompat.getColor(mContext,R.color.white));
+                                });
+                            }
+                            // User doesn't have profile_pic: Assign default initial pic.
+                            else {
+                                profileImage.setAvatarInitials(message.getName().substring(0,1).toUpperCase());
+                                profileImage.setAvatarInitialsBackgroundColor(ContextCompat.getColor(mContext, R.color.dark_green));
                             }
                         }
                     }
