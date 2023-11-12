@@ -22,9 +22,6 @@
             android:name=".ForgotPwdActivity"
             android:exported="false" />
         <activity
-            android:name=".TestHomePage"
-            android:exported="false" />
-        <activity
             android:name=".SignUpPage"
             android:exported="false" />
         <activity

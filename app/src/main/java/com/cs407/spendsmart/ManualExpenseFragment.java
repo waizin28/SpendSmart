@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,9 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import android.widget.Button;
 import android.widget.Toast;
@@ -170,6 +174,10 @@ public class ManualExpenseFragment extends Fragment {
                     spinnerInput.setSelection(0);
                     manualExpenseAmount.setText("");
                     manualInputDate.setText("");
+                    // Update user transactions with transaction id.
+                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                    DocumentReference dr = db.collection("users").document(mAuth.getCurrentUser().getEmail());
+                    dr.update("transactions", FieldValue.arrayUnion(documentReference.getId()));
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Error adding expense", Toast.LENGTH_SHORT).show();
