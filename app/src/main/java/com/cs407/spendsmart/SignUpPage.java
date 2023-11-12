@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -145,14 +146,13 @@ public class SignUpPage extends AppCompatActivity {
             else {
                 user.put("profile_pic",null);
             }
-            database.collection("users").document(email.getText().toString()).set(user).addOnSuccessListener(unused -> Toast.makeText(getApplicationContext(), "Information Saved", Toast.LENGTH_SHORT).show());
-
             // Firebase Authentication - create new user with email and password.
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
             mAuth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
                     .addOnCompleteListener(this, task -> {
                         if(task.isSuccessful()) {
-                            new UserProfileChangeRequest.Builder().setDisplayName(name.getText().toString()).build();
+                            mAuth.getCurrentUser().updateProfile(new UserProfileChangeRequest.Builder().setDisplayName(name.getText().toString()).build());
+                            database.collection("users").document(email.getText().toString()).set(user).addOnSuccessListener(unused -> Toast.makeText(getApplicationContext(), "Information Saved", Toast.LENGTH_SHORT).show());
                             Intent intent = new Intent(SignUpPage.this, LogInActivity.class);
                             startActivity(intent);
                         }
