@@ -18,7 +18,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -146,7 +145,7 @@ public class SignUpPage extends AppCompatActivity {
             else {
                 user.put("profile_pic",null);
             }
-            database.collection("users").document(email.getText().toString()).set(user).addOnSuccessListener(unused -> Toast.makeText(getApplicationContext(), "Sign Up Success", Toast.LENGTH_SHORT).show());
+            database.collection("users").document(email.getText().toString()).set(user).addOnSuccessListener(unused -> Toast.makeText(getApplicationContext(), "Information Saved", Toast.LENGTH_SHORT).show());
 
             // Firebase Authentication - create new user with email and password.
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -161,28 +160,6 @@ public class SignUpPage extends AppCompatActivity {
                             Toast.makeText(SignUpPage.this, "Authentication failed", Toast.LENGTH_SHORT).show();
                         }
                     });
-
-
-
-
-                    /*.addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                Log.d(TAG, "createUserWithEmail:success");
-                                FirebaseUser user = mAuth.getCurrentUser();
-                                //updateUI(user);
-                            } else {
-                                // If sign in fails, display a message to the user.
-                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                Toast.makeText(EmailPasswordActivity.this, "Authentication failed.",
-                                        Toast.LENGTH_SHORT).show();
-                                //updateUI(null);
-                            }
-                        }
-                    });*/
-
         }
     }
 

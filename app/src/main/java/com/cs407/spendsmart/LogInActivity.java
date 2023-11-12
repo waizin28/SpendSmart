@@ -34,7 +34,6 @@ public class LogInActivity extends AppCompatActivity {
         // Check if user is signed in and go straight to homepage
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
-            Log.d("HELP", ""+mAuth.getCurrentUser().getEmail());
             startActivity(new Intent(this, MainActivity.class));
         }
     }
