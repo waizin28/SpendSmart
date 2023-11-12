@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,10 @@ import android.widget.EditText;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,12 +30,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class CommunityFragment extends Fragment {
-    private List<Message> messageList;
+    private List<Message> messageList = new ArrayList<>();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    private boolean recyclerLoaded = false;
+    private boolean listLoaded = false;
+    MessageListAdapter mMessageAdapter;
 
     public CommunityFragment() {
         // Required empty public constructor
@@ -59,20 +66,30 @@ public class CommunityFragment extends Fragment {
             message.put("email",Objects.requireNonNull(mAuth.getCurrentUser().getEmail()));
             db.collection("chat").add(message);
             messageText.setText("");
-            loadMessages();
         });
 
-        if(!recyclerLoaded) {
+        if(!listLoaded){
             loadMessages();
         }
-        else {
+        else if(listLoaded) {
             displayMessages();
         }
+        db.collection("chat").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                assert value != null;
+                if(value.getDocuments().size() > messageList.size() && listLoaded){
+                    Log.d("HELP", "");
+                    loadMessages();
+                }
+            }
+        });
+
     }
 
     public void displayMessages() {
         RecyclerView mMessageRecycler = (RecyclerView) requireView().findViewById(R.id.recycler_chat);
-        MessageListAdapter mMessageAdapter = new MessageListAdapter(getContext(), messageList);
+        mMessageAdapter = new MessageListAdapter(getContext(), messageList);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setSmoothScrollbarEnabled(false);
         mMessageRecycler.setLayoutManager(linearLayoutManager);
@@ -81,9 +98,11 @@ public class CommunityFragment extends Fragment {
     }
 
     public void loadMessages() {
-        messageList = new ArrayList<>();
+        messageList.clear();
+        Lock lock = new ReentrantLock();
         db.collection("chat").get().addOnSuccessListener(queryDocumentSnapshots -> {
             List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+            lock.lock();
             for (int i = 0; i < docList.size(); i++) {
                 Message message = new Message(Objects.requireNonNull(docList.get(i).get("message")).toString(),
                         ((Timestamp) Objects.requireNonNull(docList.get(i).get("date"))).toDate(),
@@ -101,9 +120,10 @@ public class CommunityFragment extends Fragment {
                         return 0;
                     }
                 });
-                displayMessages();
-                recyclerLoaded = true;
             }
+            displayMessages();
+            lock.unlock();
+            listLoaded = true;
         });
     }
 }
