@@ -85,7 +85,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
         ReceivedMessageHolder(View itemView) {
             super(itemView);
-            messageText = (TextView) itemView.findViewById(R.id.chat_message_other);
+            messageText = (TextView) itemView.findViewById(R.id.chat_message_me);
             timeText = (TextView) itemView.findViewById(R.id.chat_timestamp_other);
             nameText = (TextView) itemView.findViewById(R.id.chat_user_other);
             dateText = (TextView) itemView.findViewById(R.id.chat_date_other);
@@ -103,54 +103,51 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                 dateText.setText(DateFormat.getDateInstance().format(message.getDate()));
                 prevDate = DateFormat.getDateInstance().format(message.getDate());
             }
-            if(message.getName().equals(prevName)){
-                nameText.setVisibility(View.GONE);
-                profileImage.setVisibility(View.GONE);
-            }
-            else {
-                nameText.setVisibility(View.VISIBLE);
-                nameText.setText(message.getName());
-                prevName = message.getName();
-                profileImage.setVisibility(View.VISIBLE);
+            nameText.setVisibility(View.VISIBLE);
+            nameText.setText(message.getName());
+            prevName = message.getName();
+            profileImage.setVisibility(View.VISIBLE);
 
-                DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(message.getEmail());
-                docRef.get().addOnCompleteListener(task -> {
-                    if(task.isSuccessful()){
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            // User has uploaded a profile pic
-                            if(document.get("profile_pic") != null){
-                                StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-                                StorageReference pathReference = storageRef.child("profile_pics/"+message.getEmail());
-                                final long LIMIT = 2048 * 2048;
-                                pathReference.getBytes(LIMIT).addOnSuccessListener(bytes -> {
-                                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                    profileImage.setAvatarInitials(null);
-                                    profileImage.setImageBitmap(bitmap);
-                                    profileImage.setAvatarInitialsBackgroundColor(ContextCompat.getColor(mContext,R.color.white));
-                                });
-                            }
-                            // User doesn't have profile_pic: Assign default initial pic.
-                            else {
-                                profileImage.setAvatarInitials(message.getName().substring(0,1).toUpperCase());
-                                profileImage.setAvatarInitialsBackgroundColor(ContextCompat.getColor(mContext, R.color.dark_green));
-                            }
+            DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(message.getEmail());
+            docRef.get().addOnCompleteListener(task -> {
+                if(task.isSuccessful()){
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        // User has uploaded a profile pic
+                        if(document.get("profile_pic") != null){
+                            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+                            StorageReference pathReference = storageRef.child("profile_pics/"+message.getEmail());
+                            final long LIMIT = 2048 * 2048;
+                            pathReference.getBytes(LIMIT).addOnSuccessListener(bytes -> {
+                                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                profileImage.setAvatarInitials(null);
+                                profileImage.setImageBitmap(bitmap);
+                                profileImage.setAvatarInitialsBackgroundColor(ContextCompat.getColor(mContext,R.color.white));
+                            });
+                        }
+                        // User doesn't have profile_pic: Assign default initial pic.
+                        else {
+                            profileImage.setAvatarInitials(message.getName().substring(0,1).toUpperCase());
+                            profileImage.setAvatarInitialsBackgroundColor(ContextCompat.getColor(mContext, R.color.dark_green));
                         }
                     }
-                });
+                }
+            });
 
-            }
         }
     }
 
     private class SentMessageHolder extends RecyclerView.ViewHolder {
-        TextView messageText, timeText, dateText;
+        TextView messageText, timeText, dateText, nameText;
+        AvatarView profileImage;
 
         SentMessageHolder(View itemView) {
             super(itemView);
             messageText = (TextView) itemView.findViewById(R.id.chat_message_me);
             timeText = (TextView) itemView.findViewById(R.id.chat_timestamp_me);
+            nameText = (TextView) itemView.findViewById(R.id.chat_user_me);
             dateText = (TextView) itemView.findViewById(R.id.chat_date_me);
+            profileImage = (AvatarView) itemView.findViewById(R.id.chat_profile_me);
         }
 
         void bind(Message message) {
@@ -164,7 +161,37 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                 dateText.setText(DateFormat.getDateInstance().format(message.getDate()));
                 prevDate = DateFormat.getDateInstance().format(message.getDate());
             }
+            nameText.setVisibility(View.VISIBLE);
+            nameText.setText(message.getName());
             prevName = message.getName();
+            profileImage.setVisibility(View.VISIBLE);
+
+            DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(message.getEmail());
+            docRef.get().addOnCompleteListener(task -> {
+                if(task.isSuccessful()){
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        // User has uploaded a profile pic
+                        if(document.get("profile_pic") != null){
+                            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+                            StorageReference pathReference = storageRef.child("profile_pics/"+message.getEmail());
+                            final long LIMIT = 2048 * 2048;
+                            pathReference.getBytes(LIMIT).addOnSuccessListener(bytes -> {
+                                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                profileImage.setAvatarInitials(null);
+                                profileImage.setImageBitmap(bitmap);
+                                profileImage.setAvatarInitialsBackgroundColor(ContextCompat.getColor(mContext,R.color.white));
+                            });
+                        }
+                        // User doesn't have profile_pic: Assign default initial pic.
+                        else {
+                            profileImage.setAvatarInitials(message.getName().substring(0,1).toUpperCase());
+                            profileImage.setAvatarInitialsBackgroundColor(ContextCompat.getColor(mContext, R.color.dark_green));
+                        }
+                    }
+                }
+            });
+
         }
     }
 
