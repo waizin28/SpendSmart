@@ -7,4 +7,14 @@
     <color name="grey">#B9B1B1</color>
     <color name="red">#FF0202</color>
     <color name="dark_green">#245C34</color>
+
+    <array name="chartColors">
+        <item>@color/dark_green</item>
+        <item>#3e7d3b</item>
+        <item>#619e3e</item>
+        <item>#8cc03b</item>
+        <item>#bee032</item>
+        <item>#f8ff24</item>
+    </array>
+
 </resources>
