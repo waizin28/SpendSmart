@@ -18,11 +18,11 @@
         android:layout_width="0dp"
         android:layout_height="400dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/space" />
+        app:layout_constraintTop_toBottomOf="@+id/OverviewHeader" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/transaction_card"
@@ -61,5 +61,17 @@
             android:indeterminate="false"
             android:progressTint="#4CAF50" />
     </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/OverviewHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Spending Percentage by Category"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/space" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
