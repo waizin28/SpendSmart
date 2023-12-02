@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,6 +88,9 @@ public class OverviewFragment extends Fragment {
                 transactionDoc.get().addOnSuccessListener(docSnapshot -> {
                     String category = (String) docSnapshot.get("category");
                     Double amount = (Double) docSnapshot.get("amount");
+                    if(amount == null){
+                        return;
+                    }
                     if(map.containsKey(category)){
                         map.put(category, map.get(category)+amount.floatValue());
                     }
