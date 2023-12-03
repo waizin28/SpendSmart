@@ -12,4 +12,14 @@
         <item name="shapeAppearance">@style/RoundedCorner</item>
     </style>
 
+    <style name="error">
+        <item name="stColorBackground">#F3360D</item>
+        <item name="stTextBold">true</item>
+        <item name="stTextSize">20sp</item>
+        <item name="stTextColor">@color/white</item>
+        <item name="stIconStart">@drawable/danger</item>
+        <item name="stStrokeWidth">2dp</item>
+        <item name="stStrokeColor">#F3360D</item>
+    </style>
+
 </resources>

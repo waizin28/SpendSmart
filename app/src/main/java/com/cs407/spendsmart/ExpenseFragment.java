@@ -63,9 +63,18 @@ public class ExpenseFragment extends Fragment {
         addScanReceiptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle the scan receipt button click
-                Toast.makeText(getActivity(), "Scan Receipt Clicked", Toast.LENGTH_SHORT).show();
-                // Implement your logic here
+                // Replace the Toast message with a fragment transaction
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                // Create a new instance of ManualExpenseFragment
+                ScanExpenseFragment scanExpenseFragment = new ScanExpenseFragment();
+
+                // Replace the current fragment with the new one
+                fragmentTransaction.replace(R.id.fragment_container, scanExpenseFragment);
+
+                // Commit the transaction
+                fragmentTransaction.commit();
             }
         });
 

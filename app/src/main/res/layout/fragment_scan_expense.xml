@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ScanExpenseFragment">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="40dp"></Space>
+
+    <ImageView
+        android:id="@+id/scanExpenseBackButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="15dp"
+        android:clickable="true"
+        android:contextClickable="true"
+        app:srcCompat="@drawable/back_arrow_gray" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Show image from camera-->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imageIv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/image"
+                android:adjustViewBounds="true"
+                app:strokeWidth="2dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/inputImageBtn"
+                android:layout_marginTop="15dp"
+                android:text="Take Image Of Receipt"
+                app:cornerRadius="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1"
+                app:icon="@drawable/add_photo"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp"
+                    android:layout_gravity="center">
+
+                    <TextView
+                        android:id="@+id/dateLabel"
+                        android:layout_width="wrap_content"
+                        android:textSize="18dp"
+                        android:layout_height="wrap_content"
+                        android:text="Date: "
+                        android:layout_marginStart="18dp"/>
+
+                    <EditText
+                        android:id="@+id/dateInput"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18dp"
+                        android:background="@null"/>
+
+                    <TextView
+                        android:layout_marginStart="40dp"
+                        android:id="@+id/totalCostLabel"
+                        android:textSize="18dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total Cost: "/>
+
+                    <EditText
+                        android:id="@+id/totalCostInput"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18dp"
+                        android:background="@null"/>
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/confirmBtn"
+                    android:layout_marginTop="25dp"
+                    android:text="Confirm"
+                    style="@style/YellowButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
