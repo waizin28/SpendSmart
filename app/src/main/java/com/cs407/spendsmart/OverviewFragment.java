@@ -22,6 +22,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -111,6 +112,8 @@ public class OverviewFragment extends Fragment {
                     }
 
                     PieDataSet dataSet = new PieDataSet(entries, label);
+                    PercentFormatter formatter = new PercentFormatter();
+                    dataSet.setValueFormatter(formatter);
                     dataSet.setValueTextSize(12f);
                     dataSet.setColors(colors);
                     PieData data = new PieData(dataSet);
