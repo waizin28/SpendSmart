@@ -338,7 +338,8 @@ public class ScanExpenseFragment extends Fragment {
                 }
 
                 String category = spinnerInput.getSelectedItem().toString();
-                String date = receiptInfo.getDate();
+                String date = dateInput.getText().toString();
+
                 String email = getCurrentUserEmail(); // Implement this method to get the logged-in user's email
 
                 if (date.isEmpty() || email.isEmpty()) {
@@ -347,9 +348,11 @@ public class ScanExpenseFragment extends Fragment {
                     return;
                 }
 
+                String totalCostText = totalCostInput.getText().toString().replace("$", "").trim();
+
                 Map<String, Object> transaction = new HashMap<>();
                 transaction.put("category", category);
-                transaction.put("amount", receiptInfo.getTotalCost());
+                transaction.put("amount", totalCostText);
                 transaction.put("date", date);
                 transaction.put("email", email);
 
