@@ -123,6 +123,7 @@ public class AllTransactionsFragment extends Fragment {
                             return 0;
                         }
                     }));
+
                     displayTransactions();
 
                 });
@@ -131,7 +132,6 @@ public class AllTransactionsFragment extends Fragment {
     }
 
     public void displayTransactions() {
-        Log.d("HELP",""+transactionList.size());
         RecyclerView mTransactionRecycler = (RecyclerView) requireView().findViewById(R.id.transaction_recycler);
         mTransactionAdapter = new TransactionListAdapter(getContext(), transactionList);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
