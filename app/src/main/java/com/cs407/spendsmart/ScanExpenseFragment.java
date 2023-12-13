@@ -12,10 +12,15 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -229,7 +234,20 @@ public class ScanExpenseFragment extends Fragment {
                     receiptInfo = parseReceipt(recognizedText);
                     dateLabel.setVisibility(View.VISIBLE);
                     totalCostLabel.setVisibility(View.VISIBLE);
-                    dateInput.setText(receiptInfo.getDate());
+                    
+                    int monthIndex = receiptInfo.getDate().indexOf("/");
+                    String month = receiptInfo.getDate().substring(0, monthIndex);
+                    String date = receiptInfo.getDate().substring(monthIndex + 1, monthIndex + 3);
+                    StringBuilder builder = new StringBuilder(receiptInfo.getDate());
+
+                    builder.replace(0, monthIndex, date);
+                    builder.replace(monthIndex + 1, monthIndex + 3, month);
+                    int yearIndex = builder.length() - 2; // index of the last two characters of the year
+                    builder.insert(yearIndex, "20");
+
+                    String formattedDate = builder.toString();
+
+                    dateInput.setText(formattedDate);
                     totalCostInput.setText("$" + String.format("%.2f",receiptInfo.getTotalCost()));
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -348,7 +366,7 @@ public class ScanExpenseFragment extends Fragment {
                     return;
                 }
 
-                String totalCostText = totalCostInput.getText().toString().replace("$", "").trim();
+                Double totalCostText = Double.parseDouble(totalCostInput.getText().toString().replace("$", "").trim());
 
                 Map<String, Object> transaction = new HashMap<>();
                 transaction.put("category", category);
