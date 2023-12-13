@@ -15,6 +15,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
@@ -34,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -44,6 +47,8 @@ public class HomeFragment extends Fragment {
     private TimeInterval selectedTimeInterval = TimeInterval.WEEK;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private List<Transaction> transactionList = new ArrayList<>();
+    TransactionListAdapter mTransactionAdapter;
 
     // enum for time intervals
     public enum TimeInterval {
@@ -187,6 +192,22 @@ public class HomeFragment extends Fragment {
                     LineData lineData = new LineData(dataSet);
                     chart.setData(lineData);
                     chart.invalidate(); // Refresh the chart
+
+                    Transaction transaction = new Transaction(amount, category, date);
+                    transactionList.add(transaction);
+
+                    transactionList.sort(((transaction1, t1) -> {
+                        if(transaction1.getDate().after(t1.getDate())){
+                            return -1;
+                        }
+                        else if(transaction1.getDate().before(t1.getDate())){
+                            return 1;
+                        }
+                        else{
+                            return 0;
+                        }
+                    }));
+                    displayTransactions();
                 });
             }
         });
@@ -225,5 +246,17 @@ public class HomeFragment extends Fragment {
                     return "";
             }
         }
+    }
+
+    public void displayTransactions() {
+        if(transactionList.size()>3){
+            transactionList = transactionList.subList(0,3);
+        }
+        RecyclerView mTransactionRecycler = (RecyclerView) requireView().findViewById(R.id.recent_trans);
+        mTransactionAdapter = new TransactionListAdapter(getContext(), transactionList);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setSmoothScrollbarEnabled(false);
+        mTransactionRecycler.setLayoutManager(linearLayoutManager);
+        mTransactionRecycler.setAdapter(mTransactionAdapter);
     }
 }
