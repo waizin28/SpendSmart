@@ -27,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -122,7 +123,13 @@ public class HomeFragment extends Fragment {
                 transactionDoc.get().addOnSuccessListener(docSnapshot -> {
                     String category = (String) docSnapshot.get("category");
                     Double amount = (Double) docSnapshot.get("amount");
-                    Date date = new Date((String) docSnapshot.get("date"));
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/mm/yyyy", Locale.ENGLISH);
+                    Date date = null;
+                    try {
+                        date = formatter.parse(docSnapshot.get("date").toString());
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
                     if (amount == null) {
                         return;
                     }
